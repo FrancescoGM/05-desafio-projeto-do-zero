@@ -43,6 +43,9 @@ interface PostProps {
 const Post: NextPage<PostProps> = ({ post }) => {
   const { isFallback } = useRouter();
 
+  if (isFallback || !post) {
+    return <p>Carregando...</p>;
+  }
   const readingTime = Math.ceil(
     RichText.asText(
       post.data.content.reduce((acc, data) => [...acc, ...data.body], [])
@@ -58,41 +61,36 @@ const Post: NextPage<PostProps> = ({ post }) => {
       </Head>
       <main className={styles.container}>
         <Header />
-        {isFallback ? (
-          <p>Carregando...</p>
-        ) : (
-          <>
-            <div>
-              <img src={post.data.banner.url} alt="banner" />
+
+        <div>
+          <img src={post.data.banner.url} alt="banner" />
+        </div>
+        <article className={styles.content}>
+          <h1>{post.data.title}</h1>
+          <header>
+            <time>
+              <CalendarIcon /> {formatDate(post.first_publication_date)}
+            </time>
+            <span>
+              <UserIcon /> {post.data.author}
+            </span>
+            <span>
+              <ClockIcon /> {readingTime} min
+            </span>
+          </header>
+          {post.data.content.map(({ heading, body }, key) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <div key={`${post.uid}.${key}`}>
+              {heading && <h2>{heading}</h2>}
+              <div
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{
+                  __html: RichText.asHtml(body),
+                }}
+              />
             </div>
-            <article className={styles.content}>
-              <h1>{post.data.title}</h1>
-              <header>
-                <time>
-                  <CalendarIcon /> {formatDate(post.first_publication_date)}
-                </time>
-                <span>
-                  <UserIcon /> {post.data.author}
-                </span>
-                <span>
-                  <ClockIcon /> {readingTime} min
-                </span>
-              </header>
-              {post.data.content.map(({ heading, body }, key) => (
-                // eslint-disable-next-line react/no-array-index-key
-                <div key={`${post.uid}.${key}`}>
-                  {heading && <h2>{heading}</h2>}
-                  <div
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{
-                      __html: RichText.asHtml(body),
-                    }}
-                  />
-                </div>
-              ))}
-            </article>
-          </>
-        )}
+          ))}
+        </article>
       </main>
     </>
   );
@@ -102,7 +100,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const prismic = getPrismicClient();
   const res = await prismic.query(
     Prismic.Predicates.at('document.type', 'post'),
-    { pageSize: 20 }
+    { pageSize: 2 }
   );
 
   const paths = res.results.map(post => {
