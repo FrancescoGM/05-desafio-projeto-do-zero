@@ -1,1 +1,64 @@
-// TODO
+.container {
+  max-width: 720px;
+  margin: 5rem auto 0;
+  padding: 0 2rem;
+  height: calc(100vh - 5rem);
+
+  img {
+    margin-bottom: 4rem;
+  }
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 3.125rem;
+
+  > button {
+    background-color: transparent;
+    text-align: left;
+    border: none;
+    width: min-content;
+    white-space: nowrap;
+    font-size: 1.125rem;
+    font-weight: 600;
+
+    color: var(--highlight);
+  }
+
+  a {
+    strong {
+      font-size: 1.75rem;
+      letter-spacing: -0.5px;
+      font-weight: bold;
+
+      display: block;
+      margin-bottom: 0.5rem;
+
+      color: var(--heading);
+    }
+    > p {
+      font-size: 1.125rem;
+      font-weight: 400;
+      color: var(--body);
+
+      margin-bottom: 1.5rem;
+    }
+    > div {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+
+      svg {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+      time,
+      p {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
