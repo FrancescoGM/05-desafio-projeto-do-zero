@@ -13,7 +13,7 @@ import {
 import { useEffect } from 'react';
 import ApiSearchResponse from '@prismicio/client/types/ApiSearchResponse';
 import { getPrismicClient } from '../../services/prismic';
-import { formatDate, formatLastPublication } from '../../utils/formatdate';
+import { formatDate, formatLastPublication } from '../../utils/formatDate';
 
 import Header from '../../components/Header';
 import { PreviewButton } from '../../components/PreviewButton';
@@ -46,6 +46,7 @@ interface PostProps {
   post: Post;
   nextPost: NeighborhoodPost;
   previousPost: NeighborhoodPost;
+  commentsGithubUrl: string;
 }
 
 const Post: NextPage<PostProps> = ({
@@ -53,6 +54,7 @@ const Post: NextPage<PostProps> = ({
   preview,
   nextPost,
   previousPost,
+  commentsGithubUrl,
 }) => {
   const { isFallback } = useRouter();
 
@@ -61,7 +63,7 @@ const Post: NextPage<PostProps> = ({
     const anchor = document.getElementById('inject-comments-for-uterances');
     script.setAttribute('src', 'https://utteranc.es/client.js');
     script.setAttribute('crossorigin', 'anonymous');
-    script.setAttribute('repo', 'FrancescoGM/05-desafio-projeto-do-zero');
+    script.setAttribute('repo', commentsGithubUrl);
     script.setAttribute('issue-term', 'pathname');
     script.setAttribute('theme', 'github-dark');
     anchor.appendChild(script);
@@ -229,6 +231,7 @@ export const getStaticProps: GetStaticProps<PostProps> = async ({
 
   return {
     props: {
+      commentsGithubUrl: process.env.COMMENTS_GITHUB_URL,
       preview,
       post,
       nextPost,

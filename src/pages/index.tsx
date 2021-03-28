@@ -9,7 +9,7 @@ import { getPrismicClient } from '../services/prismic';
 
 // import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
-import { formatDate } from '../utils/formatdate';
+import { formatDate } from '../utils/formatDate';
 import { PreviewButton } from '../components/PreviewButton';
 
 interface Post {
