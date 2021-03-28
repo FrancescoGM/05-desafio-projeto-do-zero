@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fi';
 
 import { useEffect } from 'react';
+import ApiSearchResponse from '@prismicio/client/types/ApiSearchResponse';
 import { getPrismicClient } from '../../services/prismic';
 import { formatDate, formatLastPublication } from '../../utils/formatdate';
 
@@ -81,6 +82,23 @@ const Post: NextPage<PostProps> = ({
         <title>
           {isFallback ? 'Carregando...' : post.data.title} | spacetraveling
         </title>
+        <meta name="description" content={post.data.subtitle} />
+
+        <meta property="og:site_name" content="spacetraveling" />
+
+        <meta property="og:title" content={post.data.title} />
+        <meta property="og:description" content={post.data.subtitle} />
+
+        <meta property="og:image" content="/images/thumbnail.svg" />
+        <meta property="og:image:type" content="image/png" />
+
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.data.title} />
+        <meta name="twitter:description" content={post.data.subtitle} />
+        <meta name="twitter:image" content="/images/thumbnail.svg" />
       </Head>
       <main className={styles.container}>
         <Header />
@@ -150,7 +168,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 function formatNeighborhoodPost(
-  post: any,
+  post: ApiSearchResponse,
   slug: string
 ): NeighborhoodPost | null {
   return slug === post.results[0].uid
