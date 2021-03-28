@@ -89,7 +89,7 @@ const Post: NextPage<PostProps> = ({
         <meta property="og:title" content={post.data.title} />
         <meta property="og:description" content={post.data.subtitle} />
 
-        <meta property="og:image" content="/images/thumbnail.svg" />
+        <meta property="og:image" content="/images/thumbnail.png" />
         <meta property="og:image:type" content="image/png" />
 
         <meta property="og:image:width" content="1200" />
@@ -98,7 +98,7 @@ const Post: NextPage<PostProps> = ({
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.data.title} />
         <meta name="twitter:description" content={post.data.subtitle} />
-        <meta name="twitter:image" content="/images/thumbnail.svg" />
+        <meta name="twitter:image" content="/images/thumbnail.png" />
       </Head>
       <main className={styles.container}>
         <Header />
