@@ -6,3 +6,8 @@ export function formatDate(date: string): string {
     locale: pt,
   });
 }
+export function formatLastPublication(date: string): string {
+  return format(parseISO(date), "'* editado em' dd MMM yyyy', às' hh:mm", {
+    locale: pt,
+  });
+}

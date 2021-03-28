@@ -10,16 +10,20 @@ import {
   FiClock as ClockIcon,
 } from 'react-icons/fi';
 
-import Header from '../../components/Header';
-import { formatDate } from '../../utils/formatdate';
+import { useEffect } from 'react';
 import { getPrismicClient } from '../../services/prismic';
+import { formatDate, formatLastPublication } from '../../utils/formatdate';
 
-// import commonStyles from '../../styles/common.module.scss';
+import Header from '../../components/Header';
+import { PreviewButton } from '../../components/PreviewButton';
+import { NeighborhoodPost, PostFooter } from '../../components/PostFooter';
+
 import styles from './post.module.scss';
 
 interface Post {
   uid?: string;
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     subtitle?: string;
@@ -37,11 +41,30 @@ interface Post {
 }
 
 interface PostProps {
+  preview: boolean;
   post: Post;
+  nextPost: NeighborhoodPost;
+  previousPost: NeighborhoodPost;
 }
 
-const Post: NextPage<PostProps> = ({ post }) => {
+const Post: NextPage<PostProps> = ({
+  post,
+  preview,
+  nextPost,
+  previousPost,
+}) => {
   const { isFallback } = useRouter();
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    const anchor = document.getElementById('inject-comments-for-uterances');
+    script.setAttribute('src', 'https://utteranc.es/client.js');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.setAttribute('repo', 'FrancescoGM/05-desafio-projeto-do-zero');
+    script.setAttribute('issue-term', 'pathname');
+    script.setAttribute('theme', 'github-dark');
+    anchor.appendChild(script);
+  }, []);
 
   if (isFallback || !post) {
     return <p>Carregando...</p>;
@@ -68,15 +91,20 @@ const Post: NextPage<PostProps> = ({ post }) => {
         <article className={styles.content}>
           <h1>{post.data.title}</h1>
           <header>
-            <time>
-              <CalendarIcon /> {formatDate(post.first_publication_date)}
-            </time>
-            <span>
-              <UserIcon /> {post.data.author}
-            </span>
-            <span>
-              <ClockIcon /> {readingTime} min
-            </span>
+            <div>
+              <time>
+                <CalendarIcon /> {formatDate(post.first_publication_date)}
+              </time>
+              <span>
+                <UserIcon /> {post.data.author}
+              </span>
+              <span>
+                <ClockIcon /> {readingTime} min
+              </span>
+            </div>
+            {post.last_publication_date && (
+              <i>{formatLastPublication(post.last_publication_date)}</i>
+            )}
           </header>
           {post.data.content.map(({ heading, body }, key) => (
             // eslint-disable-next-line react/no-array-index-key
@@ -90,6 +118,10 @@ const Post: NextPage<PostProps> = ({ post }) => {
               />
             </div>
           ))}
+          <hr />
+          <PostFooter nextPost={nextPost} previousPost={previousPost} />
+          <div id="inject-comments-for-uterances" />
+          <PreviewButton preview={preview} />
         </article>
       </main>
     </>
@@ -117,10 +149,39 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async context => {
-  const { slug } = context.params;
+function formatNeighborhoodPost(
+  post: any,
+  slug: string
+): NeighborhoodPost | null {
+  return slug === post.results[0].uid
+    ? null
+    : {
+        title: post.results[0]?.data?.title,
+        uid: post.results[0]?.uid,
+      };
+}
+
+export const getStaticProps: GetStaticProps<PostProps> = async ({
+  params,
+  preview = false,
+}) => {
+  const { slug }: { slug?: string } = params;
   const prismic = getPrismicClient();
   const res = await prismic.getByUID('post', String(slug), {});
+
+  const resPreviousPost = await prismic.query(
+    Prismic.Predicates.at('document.type', 'post'),
+    {
+      pageSize: 1,
+      after: slug,
+      orderings: '[document.first_publication_date desc]',
+    }
+  );
+  const resNextPost = await prismic.query(
+    Prismic.Predicates.at('document.type', 'post'),
+    { pageSize: 1, after: slug, orderings: '[document.first_publication_date]' }
+  );
+
   if (!res) {
     return {
       redirect: {
@@ -130,9 +191,13 @@ export const getStaticProps: GetStaticProps = async context => {
     };
   }
 
+  const nextPost = formatNeighborhoodPost(resNextPost, slug);
+  const previousPost = formatNeighborhoodPost(resPreviousPost, slug);
+
   const post: Post = {
     uid: res.uid,
     first_publication_date: res.first_publication_date,
+    last_publication_date: res.last_publication_date,
     data: {
       title: res.data.title,
       subtitle: res.data.subtitle,
@@ -146,7 +211,10 @@ export const getStaticProps: GetStaticProps = async context => {
 
   return {
     props: {
+      preview,
       post,
+      nextPost,
+      previousPost,
     },
   };
 };

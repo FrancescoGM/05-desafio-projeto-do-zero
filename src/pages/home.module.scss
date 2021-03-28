@@ -13,18 +13,6 @@
   flex-direction: column;
   gap: 3.125rem;
 
-  > button {
-    background-color: transparent;
-    text-align: left;
-    border: none;
-    width: min-content;
-    white-space: nowrap;
-    font-size: 1.125rem;
-    font-weight: 600;
-
-    color: var(--highlight);
-  }
-
   a {
     strong {
       font-size: 1.75rem;
@@ -61,4 +49,16 @@
       }
     }
   }
+}
+
+.morePostsButton {
+  background-color: transparent;
+  text-align: left;
+  border: none;
+  width: min-content;
+  white-space: nowrap;
+  font-size: 1.125rem;
+  font-weight: 600;
+
+  color: var(--highlight);
 }
