@@ -10,6 +10,7 @@ import { getPrismicClient } from '../services/prismic';
 // import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 import { formatDate } from '../utils/formatdate';
+import { PreviewButton } from '../components/PreviewButton';
 
 interface Post {
   uid?: string;
@@ -28,9 +29,10 @@ interface PostPagination {
 
 interface HomeProps {
   postsPagination: PostPagination;
+  preview: boolean;
 }
 
-const Home: NextPage<HomeProps> = ({ postsPagination }) => {
+const Home: NextPage<HomeProps> = ({ postsPagination, preview }) => {
   const [posts, setPost] = useState<Post[]>(postsPagination.results);
   const [nextPage, setNextPage] = useState(postsPagination.next_page);
 
@@ -78,27 +80,36 @@ const Home: NextPage<HomeProps> = ({ postsPagination }) => {
             </Link>
           ))}
           {nextPage && (
-            <button type="button" onClick={handleLoadingMorePosts}>
+            <button
+              type="button"
+              className={styles.morePostsButton}
+              onClick={handleLoadingMorePosts}
+            >
               Carregar mais posts
             </button>
           )}
         </article>
+        <PreviewButton preview={preview} />
       </main>
     </>
   );
 };
 
-export const getStaticProps: GetStaticProps<HomeProps> = async () => {
+export const getStaticProps: GetStaticProps<HomeProps> = async ({
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
   const res = await prismic.query(
     Prismic.Predicates.at('document.type', 'post'),
     {
       pageSize: 1,
+      ref: previewData?.ref ?? null,
     }
   );
-
   return {
     props: {
+      preview,
       postsPagination: {
         next_page: res.next_page,
         results: res.results.map(post => {
